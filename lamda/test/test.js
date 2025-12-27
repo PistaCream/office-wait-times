@@ -1,4 +1,4 @@
-const { handler } = require('../index');
+import { handler } from "../index.js";
 
 handler({}, {})
   .then(response => {
