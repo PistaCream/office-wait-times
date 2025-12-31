@@ -13,28 +13,55 @@ export const handler = async (event, context) => {
   let res = [];
   const curDate = new Date();
   const reqTime = curDate.toISOString().slice(0, 13);
-  for (const id of officeIds) {
+
+  async function fetchWaitTimeAPI(officeId) {
     try {
-      const response = await fetch(`${url}/${id}`);
+      const response = await fetch(`${url}/${officeId}`);
       const data = await response.json();
-      if (data?.waitTimeManualSeconds) {
-        await ddbDocClient.send(
-          new PutCommand({
-            TableName,
-            Item: {
-              id,
-              officeName: data.officeName,
-              waitTimeSeconds: data.waitTimeManualSeconds,
-              date: reqTime
-            },
-          })
-        );
-        res.push(`${id} success`)
-      }
+      return data;
     } catch (err) {
-      res.push(`${id}: ` + err.message);
+      return { error: err.message, officeId };
     }
   }
+
+  //TODO: look into Batch writes (probably fine since small # of writes)
+  async function insertWaitTime(data, officeId) {
+    if (data?.waitTimeManualSeconds) {
+      await ddbDocClient.send(
+        new PutCommand({
+          TableName,
+          Item: {
+            officeId,
+            officeName: data.officeName,
+            waitTimeSeconds: data.waitTimeManualSeconds,
+            date: reqTime
+          },
+        })
+      );
+      return `${officeId}:${reqTime} success`;
+    }
+  }
+
+  async function handleFetchedData(data, officeId) {
+    return data.error ? data : await insertWaitTime(data, officeId);
+  }
+
+  const firstData = await fetchWaitTimeAPI(officeIds[0]);
+
+  //Should stop fetching since if 1 office is on holiday, all are
+  if (firstData?.isHoliday) {
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ msg: "Holiday, stopped fetches" }),
+    };
+  }
+  res.push(await handleFetchedData(firstData, officeIds[0]));
+
+  for (let i = 1; i < officeIds.length; i++) {
+    const data = await fetchWaitTimeAPI(officeIds[i]);
+    res.push(await handleFetchedData(data, officeIds[i]));
+  }
+
   return {
     statusCode: 200,
     body: JSON.stringify(res),
