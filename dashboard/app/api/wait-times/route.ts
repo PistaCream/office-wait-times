@@ -8,7 +8,7 @@ const client = new DynamoDBClient({ region });
 const docClient = DynamoDBDocumentClient.from(client);
 const TableName = process.env.TABLE_NAME;
 
-export async function GET(request) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const officeId = searchParams.get('officeId');
 
@@ -28,7 +28,8 @@ export async function GET(request) {
       return NextResponse.json({ items: result.Items });
     }
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    const errMsg = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: errMsg }, { status: 500 });
   }
 }
 
