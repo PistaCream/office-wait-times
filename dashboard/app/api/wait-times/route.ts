@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   const officeId = searchParams.get('officeId');
 
   try {
+    //TODO: does this route ever get used?
     if (officeId) {
       const params = {
         TableName,

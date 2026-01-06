@@ -43,7 +43,7 @@ function a11yProps(index: number) {
 }
 
 export default function OfficesTabs() {
-  const [waitTimes, setWaitTimes] = React.useState<WaitTime[]>([]);
+  const [waitTimesMap, setWaitTimesMap] = React.useState<Map<string, WaitTime[]>>(new Map());
   const [loading, setLoading] = React.useState(true);
   const [value, setValue] = React.useState(0);
 
@@ -51,7 +51,14 @@ export default function OfficesTabs() {
     fetch('/api/wait-times')
       .then(res => res.json())
       .then(data => {
-        setWaitTimes(data.items || []);
+        const waitTimesMap = new Map<string, WaitTime[]>();
+        (data.items || []).forEach((waitTime: WaitTime) => {
+        if (!waitTimesMap.has(waitTime.officeId)) {
+          waitTimesMap.set(waitTime.officeId, []);
+        }
+          waitTimesMap.get(waitTime.officeId)!.push(waitTime);
+      });
+        setWaitTimesMap(waitTimesMap);
         setLoading(false);
       });
   }, []);
@@ -62,19 +69,22 @@ export default function OfficesTabs() {
 
   if (loading) return <div>Loading</div>;
 
-  //TODO: group by officeId for each tab
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-          {waitTimes.map((waitTime, i) => (
-            <Tab key={waitTime.officeName} label={waitTime.officeName} {...a11yProps(i)} />
+          {Array.from(waitTimesMap.entries()).map(([officeId, waitTimes], i) => (
+            <Tab key={officeId} label={waitTimes[0]?.officeName || officeId} {...a11yProps(i)} />
           ))}
         </Tabs>
       </Box>
-      {waitTimes.map((waitTime, i) => (
-        <CustomTabPanel key={waitTime.officeId} value={value} index={i}>
-          {waitTime.officeName} ({waitTime.officeId}): {waitTime.date}: {waitTime.waitTimeSeconds} seconds
+      {Array.from(waitTimesMap.entries()).map(([officeId, waitTimes], i) => (
+        <CustomTabPanel key={officeId} value={value} index={i}>
+          {waitTimes.map(waitTime => (
+            <div key={waitTime.date}>
+              {waitTime.date}: {waitTime.waitTimeSeconds} seconds
+            </div>
+          ))}
         </CustomTabPanel>
       ))}
     </Box>
