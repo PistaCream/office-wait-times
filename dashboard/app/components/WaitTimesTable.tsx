@@ -1,7 +1,7 @@
 "use client";
-import { WaitTime } from "../types/waitTime";
+import { WaitTimeData } from "../types/waitTime";
 
-export default function WaitTimesTable(waitTimes: WaitTime[]) {
+export default function WaitTimesTable(waitTimes: WaitTimeData[]) {
   return (
     <div>
       <h1>Wait Times</h1>

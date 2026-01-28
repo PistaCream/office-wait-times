@@ -1,5 +1,4 @@
-//TODO: URGENT needs a new name, too confusing
-export interface WaitTime {
+export interface WaitTimeData {
   officeId: string;
   officeName: string;
   date: string;

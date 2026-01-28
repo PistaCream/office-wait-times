@@ -1,6 +1,6 @@
 "use client";
 import { BarChart } from '@mui/x-charts/BarChart';
-import { WaitTime } from "../types/waitTime";
+import { WaitTimeData } from "../types/waitTime";
 
 const chartSetting = {
   yAxis: [
@@ -13,7 +13,7 @@ const chartSetting = {
   height: 300,
 };
 
-export default function DayBarChart({ waitTimes }: { waitTimes: WaitTime[] }) {
+export default function DayBarChart({ waitTimes }: { waitTimes: WaitTimeData[] }) {
   if (waitTimes?.length === 0) {
     //TODO: make this look better
     return (

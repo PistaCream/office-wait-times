@@ -4,7 +4,7 @@ import * as React from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import { WaitTime } from '../types/waitTime';
+import { WaitTimeData } from '../types/waitTime';
 import DayBarChart from './DayBarChart';
 
 interface TabPanelProps {
@@ -37,7 +37,7 @@ function a11yProps(index: number) {
 }
 
 export default function OfficesTabs() {
-  const [waitTimesMap, setWaitTimesMap] = React.useState<Map<string, WaitTime[]>>(new Map());
+  const [waitTimesMap, setWaitTimesMap] = React.useState<Map<string, WaitTimeData[]>>(new Map());
   const [loading, setLoading] = React.useState(true);
   const [value, setValue] = React.useState(0);
 
@@ -45,8 +45,8 @@ export default function OfficesTabs() {
     fetch('/api/wait-times')
       .then(res => res.json())
       .then(data => {
-        const waitTimesMap = new Map<string, WaitTime[]>();
-        (data.items || []).forEach((waitTime: WaitTime) => {
+        const waitTimesMap = new Map<string, WaitTimeData[]>();
+        (data.items || []).forEach((waitTime: WaitTimeData) => {
         if (!waitTimesMap.has(waitTime.officeId)) {
           waitTimesMap.set(waitTime.officeId, []);
         }
