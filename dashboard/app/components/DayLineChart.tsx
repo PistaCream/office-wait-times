@@ -1,6 +1,6 @@
 "use client";
-import { BarChart } from '@mui/x-charts/BarChart';
 import { WaitTimeData } from "../types/waitTime";
+import { LineChart } from '@mui/x-charts/LineChart';
 
 function extractHour(hourStr: string) {
   const hour = parseInt(hourStr.slice(-2))-10;
@@ -20,9 +20,8 @@ const chartSetting = {
   height: 300,
 };
 
-export default function DayBarChart({ waitTimes }: { waitTimes: WaitTimeData[] }) {
+export default function DayLineChart({ waitTimes }: { waitTimes: WaitTimeData[] }) {
   if (waitTimes?.length === 0) {
-    //TODO: make this look better
     return (
       <div>Data not found</div>
     )
@@ -30,7 +29,8 @@ export default function DayBarChart({ waitTimes }: { waitTimes: WaitTimeData[] }
   const hours = waitTimes.map(wt => extractHour(wt.date));
   const waitTimesMins = waitTimes.map(wt => wt.waitTimeSeconds / 60);
   return (
-    <BarChart
+    //TODO: Think of better way to abstract this with DayBarChart
+    <LineChart
       xAxis={[{ data: hours }]}
       series={[{ data: waitTimesMins }]}
       {...chartSetting}

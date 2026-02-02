@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const officeId = searchParams.get('officeId');
 
+  //TODO: controllers for queried fetch?
   try {
     //TODO: does this route ever get used?
     if (officeId) {

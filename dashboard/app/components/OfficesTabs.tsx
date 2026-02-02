@@ -6,6 +6,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { WaitTimeData } from '../types/waitTime';
 import DayBarChart from './DayBarChart';
+import DayLineChart from './DayLineChart';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -77,9 +78,10 @@ export default function OfficesTabs() {
           <Tab label="Average week" />
           <Tab label="This week" />
         </Tabs>
+        {/* TODO: Data passed in needs to be for just the day/correct format */}
         {Array.from(waitTimesMap.entries()).map(([officeId, waitTimes], i) => (
           <CustomTabPanel key={officeId} value={value} index={i}>
-            <DayBarChart waitTimes={waitTimes} />
+            <DayLineChart waitTimes={waitTimes} />
           </CustomTabPanel>
         ))}
       </Box>
