@@ -23,6 +23,7 @@ const chartSetting = {
 export default function DayBarChart({ waitTimes }: { waitTimes: WaitTimeData[] }) {
   if (waitTimes?.length === 0) {
     //TODO: make this look better
+    //office probably closed that day
     return (
       <div>Data not found</div>
     )
