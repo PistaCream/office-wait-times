@@ -1,6 +1,22 @@
+import DayLineChart from './components/DayLineChart';
 import OfficesTabs from './components/OfficesTabs';
 import SummaryCard from './components/SummaryCard';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+
+//TODO: Temp dummy data
+const data = [
+  { hour: "09:00", "North Vancouver": 15, "Richmond": 20 },
+  { hour: "10:00", "North Vancouver": 18, "Richmond": 22 },
+  { hour: "11:00", "North Vancouver": 12, "Richmond": 19 },
+  { hour: "12:00", "North Vancouver": 20, "Richmond": 25 },
+  { hour: "13:00", "North Vancouver": 17, "Richmond": 21 },
+];
+
+// For week view just do id van-1, van-2 and names week day
+const series = [
+  { id: "north-vancouver", name: "North Vancouver", color: "#3b82f6" },
+  { id: "richmond", name: "Richmond", color: "#f59e42" },
+];
 
 export default function Home() {
   return (
@@ -35,7 +51,10 @@ export default function Home() {
           />
         </div>
       </div>
-      <OfficesTabs />
+      {/* TODO: Should live inside a component that determins the input it gets */}
+      <div style={{ width: "100%", height: 300 }}>
+        <DayLineChart data={data} series={series} />
+      </div>
     </div>
     </main>
   );
