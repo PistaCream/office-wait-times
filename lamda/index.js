@@ -1,9 +1,10 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import offices from './offices.json';
 
 export const handler = async (event, context) => {
   const url = process.env.API_URL;
-  const officeIds = process.env.OFFICE_IDS.split(',');
+  const officeIds = Object.keys(offices);
   const region = process.env.REGION;
   const TableName = process.env.TABLE_NAME;
   
