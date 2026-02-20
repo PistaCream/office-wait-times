@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import offices from './offices.json';
+import offices from './offices.json' with { type: "json" };
 
 export const handler = async (event, context) => {
   const url = process.env.API_URL;
@@ -25,7 +25,6 @@ export const handler = async (event, context) => {
     }
   }
 
-  //TODO: look into Batch writes (probably fine since small # of writes)
   async function insertWaitTime(data, officeId) {
     if (data?.waitTimeManualSeconds) {
       await ddbDocClient.send(
@@ -33,7 +32,7 @@ export const handler = async (event, context) => {
           TableName,
           Item: {
             officeId,
-            officeName: data.officeName,
+            officeName: data.officeName, // TODO: Redundant
             waitTimeSeconds: data.waitTimeManualSeconds,
             date: reqTime
           },
@@ -47,14 +46,11 @@ export const handler = async (event, context) => {
     return data.error ? data : await insertWaitTime(data, officeId);
   }
 
-  function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
   const firstData = await fetchWaitTimeAPI(officeIds[0]);
 
-  //Should stop fetching since if 1 office is on holiday, all are
-  if (firstData?.isHoliday) {
+  // Should stop fetching since if 1 office is on holiday, all are
+  // Also assumes if 1 office is close all are since they have same hours
+  if (firstData?.isHoliday || firstData?.isClosed) {
     return {
       statusCode: 200,
       body: JSON.stringify({ msg: "Holiday, stopped fetches" }),
@@ -62,15 +58,13 @@ export const handler = async (event, context) => {
   }
   res.push(await handleFetchedData(firstData, officeIds[0]));
 
-  const promises = officeIds.slice(1).map((officeId, i) => {
-    const delayMs = (i + 1) * 60000;
-    return delay(delayMs).then(async () => {
-      const data = await fetchWaitTimeAPI(officeId);
-      res.push(await handleFetchedData(data, officeId));
-    });
-  });
+  for (let i = 1; i < officeIds.length; i++) {
+    const data = await fetchWaitTimeAPI(officeIds[i]);
+    res.push(await handleFetchedData(data, officeIds[i]));
+  }
 
-  await Promise.all(promises);
+  const requestItems = data.map(({data, officeId }))
+  // TODO: exponential backoff algorithm loop for unprocessdItems
 
   return {
     statusCode: 200,
